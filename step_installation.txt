@@ -1,0 +1,91 @@
+Description : 
+  1. Membangun web server dengan NGINX dan NodeJS, 
+  2. Mengkonfigurasi NGINX sebagai reverse Proxy Server,
+  3. Menerapkan Limit Access di NGINX.
+
+
+OS : Ubuntu 22.04.2 LTS
+CPU : Intel i5-7200U
+Memory : 4 GiB Memory
+
+Step Installatiion :
+
+1. Melakukan update dan upgrade
+  ~ sudo apt-get update
+  ~ sudo apt-get upgrade
+
+
+2. Install NGINX
+  ~ sudo apt-get install nginx
+
+3. Buat folder baru membangun web server dan buka folder tersebut
+  ~ mkdir membangun-web-server && cd membangun-web-server
+
+4. Install NodeJS
+  ~ sudo apt-get install nodejs
+
+5. Install npm
+  ~ sudo apt-get install npm
+
+6. Inisialisasi
+  ~ npm init -y
+
+7. Install Express
+  ~ npm i express
+
+8. buat file  app.js
+  ~ touch app.js
+
+9. buka text editor
+  ~ code .
+
+10. Pada file app.js masukan script berikut yang disediakan pada repositori dicoding
+  * 'use strict'
+
+    const express = require('express')
+
+    const PORT = 8000
+    const HOST = '0.0.0.0'
+
+    const app = express()
+    app.get('/', (req, res) => {
+      res.send('Hello world!\n')
+    })
+
+    app.listen(PORT, HOST)
+    console.log(`Running on http://${HOST}:${PORT}`)
+
+11. pada file package.json tambahkan script start
+  ~ "start": "node app.js",
+
+12. Install gedit
+  ~ sudo apt-get install gedit
+
+13. Setting reverse proxy menggunakan NGINX pada path "/etc/nginx/sites-available/default"
+  ~ sudo gedit /etc/nginx/sites-available/default
+
+14. Tambahakan script berikut untuk mengkonfigurasi nginx sebagai reverse proxy server pada blok 'location'
+  * proxy_pass http://localhost:8000;
+		proxy_http_version 1.1;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection 'upgrade';
+		proxy_set_header Host $host;
+		proxy_cache_bypass $http_upgrade;
+
+15. test konfigurasi nginx dan pastikan berhasil dijalankan dan mendapatkan output "nginx: configuration file /etc/nginx/nginx.conf test is successful"
+  ~ sudo nginx -t
+
+16. Setting rate limit, masuk kembali ke path path "/etc/nginx/sites-available/default"
+  ~ sudo gedit /etc/nginx/sites-available/default
+
+17. Tambahkan script berikut pada baris sebelum blok "server"
+  * limit_req_zone $binary_remote_addr zone=one:10m rate=30r/m;
+
+18. Pada blok "location" tambahkan script berikut
+  * limit_req zone=one;
+
+19. simpan dan test kembali konfigurasi nginx
+  ~ sudo nginx -t
+
+20. Jalankan web server nodejs
+  ~ npm run start
